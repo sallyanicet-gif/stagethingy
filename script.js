@@ -44,121 +44,32 @@ function logIn() {
 // ---------------------------------------------------------------
 const PROJECTS = [
     {
-        title: "Affiche Evelynne Axell",
-        url: "silly-os.local/portfolio/projets/affiche-axell",
-        desc: "Affiche pour l'exposition fictive de Evelynne Axell au Musée d'art contemporain.",
-        tags: ["Design", "Affiche", "Illustration"],
-        image: "http://www.image-heberg.fr/files/17799349731072417184.png",
-        link: "https://drive.google.com/file/d/11WxYHSJiqjsr2f_F0ArDcBD5uq_tXjYu/view?usp=sharing",
+        title: "Logo GPE",
+        url: "silly-os.local/portfolio/projets/gpe-project",
+        desc: "identité visuelle de la GPE Gallery The Gallery Project Endeavour",
+        tags: ["Identité Visuelle", "Logo",],
+        image: "https://www.image-heberg.fr/files/17905996472278164327.png",
+        link: "https://www.image-heberg.fr/files/17905996472278164327.png",
     },
     
  {
-        title: "Affiche de concert Insane Clown Posse!",
-        url: "silly-os.local/portfolio/projets/affiche-icp",
-        desc: "Affiche pour le concert de Insane Clwn Posse, dans le style Swissted.",
-        tags: ["Design", "Affiche", "Illustration"],
-        image: "https://www.image-heberg.fr/files/17722959451235490333.png",
-        link: "https://www.image-heberg.fr/files/17722959451235490333.png",
+        title: "T-shirt et Tote bag",
+        url: "silly-os.local/portfolio/projets/t-t-takeurshirtoff",
+        desc: "Preparation des fichiers graphiques prêt à l'impression",
+        tags: ["Design", "Illustration"],
+        image:"http://www.image-heberg.fr/files/1790599941684910863.png",
+        link: "http://www.image-heberg.fr/files/1790599941684910863.png",
     },
     
     {
-        title: "Pub Flora Gucci",
-        url: "silly-os.local/portfolio/projets/pub-flora",
-        desc: "Un mockup fais en collaboration pour une publicité.",
-        tags: ["Publicité", "Collaboratif"],
-        image: "https://image.noelshack.com/fichiers/2026/36/3/1788373144-mockup.png",
-        link: "https://drive.google.com/drive/folders/1LPzavSL3eCfmo5cXGz4ang-ZFnPsYqqe",
+        title: "Affiche CHADRU",
+        url: "silly-os.local/portfolio/projets/chadru",
+        desc: "Affiche pour l'exposition de CHADRU a l'Artocarpe",
+        tags: ["Affiche"],
+        image: "https://www.image-heberg.fr/files/179060034043479321.png",
+        link: "https://www.image-heberg.fr/files/179060034043479321.png",
     },
     
-     {
-        title: "Noodles Studio",
-        url: "silly-os.local/portfolio/projets/noodlez",
-        desc: "Logo et charte graphique pour une marque fictive de vente de nouilles",
-        tags: ["Design", "Logo","Branding"],
-        image: "https://image.noelshack.com/fichiers/2026/36/3/1788373143-logo-noodles.png",
-        link: "https://drive.google.com/drive/folders/13_zx-Mh8qHjlZWkhObGA_Y-iZBeem61A",
-    },
-    
-         {
-        title: "Silly Links",
-        url: "silly-os.local/portfolio/projets/silly-links",
-        desc: "Site personnel regroupant mes résaux sociaux ",
-        tags: ["Design", "Project Perso","Branding","Web"],
-        image: "https://image.noelshack.com/fichiers/2026/36/3/1788373880-pperso.png",
-        link: "https://sillylinks.duckdns.org",
-    },
-    
-             {
-        title: "Project Mareis",
-        url: "silly-os.local/portfolio/projets/mareis",
-        desc: "Site pour une association fictive pour la protection maritime ",
-        tags: ["Collaboratif","Web"],
-        image: "https://image.noelshack.com/fichiers/2026/36/3/1788374110-site-maeries.jpg",
-        link: "https://sallyanicet-gif.github.io/sae-1.05/",
-    },
-    
-            {
-        title: "An apple a day...",
-        url: "silly-os.local/portfolio/projets/bad-apple",
-        desc: "Une affiche réaliser avec Adobe Illustrator pour un single appeler 'an apple a day' par horsegiirL",
-        tags: ["Project perso","Design","Affiche"],
-        image: "http://www.image-heberg.fr/files/17875409633740919566.png",
-        link: "https://www.instagram.com/p/DcKomFHsXCh/?utm_source=ig_web_copy_link&igsi=NTc4MTIwNjQ2YQ==",
-    }, 
-    
-              {
-        title: "Affiche Baki",
-        url: "silly-os.local/portfolio/projets/i-got-that-dawg-in-me",
-        desc: "Une affiche réaliser sur photoshop pourl'anime Baki(2018) sur Netflix ",
-        tags: ["Design","Affiche","Project Perso"],
-        image: "http://www.image-heberg.fr/files/17875411362566168416.png",
-        link: "https://www.instagram.com/p/DcZTJRdOOOO/?utm_source=ig_web_copy_link&igsi=MzRlODBiNWFlZA==",
-    },
-    
-                 {
-        title: "Portrait Plastique",
-        url: "silly-os.local/portfolio/projets/skull-but-inside",
-        desc: "Montage Photoshop Créatif",
-        tags: ["Design"],
-        image: "https://www.image-heberg.fr/files/17722963212414680389.png",
-        link: "https://www.image-heberg.fr/files/17722963212414680389.png",
-    },
-    
-              {
-        title: "Flyer BUT MMI",
-        url: "silly-os.local/portfolio/projets/jpo-but",
-        desc: "Flyer informationnel pour le BUT MMI",
-        tags: ["Design"],
-        image: "https://image.noelshack.com/fichiers/2026/36/3/1788377831-flyer-illustratif.png",
-        link: "https://image.noelshack.com/fichiers/2026/36/3/1788377831-flyer-illustratif.png",
-    },
-    
-               {
-        title: "Visuel Web Blackpink",
-        url: "silly-os.local/portfolio/projets/blackpink-in-ur-area",
-        desc: "Reproduction d'un visuel web de Blakcpink",
-        tags: ["Design","Affiche"],
-        image: "https://image.noelshack.com/fichiers/2026/22/4/1779971044-ex15-01.jpg",
-        link: "https://image.noelshack.com/fichiers/2026/22/4/1779971044-ex15-01.jpg",
-    },
-    
-                   {
-        title: "IMPT-Interview",
-        url: "silly-os.local/portfolio/projets/impt",
-        desc: "Direction artistique et management de project.",
-        tags: ["Branding","Audiovisuel"],
-        image: "https://image.noelshack.com/fichiers/2026/36/3/1788373143-impt.png",
-        link: "https://youtube.com/shorts/x1Lvlvfe02M?si=I-BWv-x-iVeFyxXD",
-    },
-    
-           {
-        title: "Scéne d'horreur",
-        url: "silly-os.local/portfolio/projets/boo",
-        desc: "Scéne de 1 minute de film d'horreur",
-        tags: ["Audiovisuel","Collaboratif"],
-        image: "https://image.noelshack.com/fichiers/2026/36/3/1788381636-film1.png",
-        link: "https://youtu.be/Y85a9M9mVBk?si=g2D22JzZw5bBffQy",
-    }, 
     // Ajoute d'autres projets ici, même format :
     // {
     //   title: "...",
