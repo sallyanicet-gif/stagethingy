@@ -1192,3 +1192,30 @@ textarea:focus-visible {
   }
   .boot-chunk { opacity: 1; }
 }
+
+/* ---------- BUT MMI UE line under each project ---------- */
+.se-result-ue {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-size: 12px;
+}
+.se-ue-label { color: #333; font-weight: bold; }
+.se-ue-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.se-ue {
+  color: #0a5c1f;
+  background: #e8f6ec;
+  border: 1px solid #a8d8b5;
+  border-radius: 3px;
+  padding: 1px 7px;
+  cursor: help;
+}
