@@ -310,7 +310,7 @@ html, body {
   flex-shrink: 0;
 }
 
-.sidebar-list div:hover { background: #dbe9fb; text-decoration: underline; }
+.sidebar-list div:hover { background: #dbe9fb; }
 
 /* ---------- Dark / hero content panel (e.g. About Me) ---------- */
 .explorer-main.dark-content {
