@@ -598,13 +598,36 @@ if (smLogoff) {
     });
 }
 
-// "Arrêter" is decorative for now — just closes the menu.
+// "Arrêter" tries to close the site. Browsers only let a script close a tab
+// it opened itself, so if closing is blocked we show an XP-style
+// "shut down" screen instead.
+function shutdownSite() {
+    startMenu.classList.remove("open");
+    startBtn.classList.remove("open");
+
+    window.close();
+
+    // Still open? The browser blocked it: show the shutdown screen.
+    setTimeout(() => {
+        document.body.innerHTML = "";
+        const screen = document.createElement("div");
+        screen.style.cssText =
+            "position:fixed;inset:0;background:#000;color:#ccc;display:flex;" +
+            "flex-direction:column;align-items:center;justify-content:center;" +
+            "gap:12px;font-family:Tahoma,Verdana,sans-serif;text-align:center;" +
+            "padding:16px;opacity:0;transition:opacity .6s;";
+        screen.innerHTML =
+            '<div style="font-size:18px;color:#f90">Vous pouvez maintenant fermer cet onglet en toute sécurité.</div>' +
+            '<div style="font-size:13px">Rechargez la page pour redémarrer.</div>';
+        document.body.style.background = "#000";
+        document.body.appendChild(screen);
+        requestAnimationFrame(() => (screen.style.opacity = "1"));
+    }, 300);
+}
+
 const smShutdown = document.getElementById("sm-shutdown");
 if (smShutdown) {
-    smShutdown.addEventListener("click", () => {
-        startMenu.classList.remove("open");
-        startBtn.classList.remove("open");
-    });
+    smShutdown.addEventListener("click", shutdownSite);
 }
 
 function updateClock() {
