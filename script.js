@@ -69,7 +69,8 @@ const PROJECTS = [
         title: "Logo GPE",
         url: "silly-os.local/portfolio/projets/gpe-project",
         desc: "identité visuelle de la GPE Gallery The Gallery Project Endeavour",
-        tags: ["Identité Visuelle", "Logo","Concevoir","Exprimer"],
+        tags: ["Identité Visuelle", "Logo"],
+        ue: ["Concevoir", "Exprimer"],
         image: "https://www.image-heberg.fr/files/17905996472278164327.png",
         link: "https://www.image-heberg.fr/files/17905996472278164327.png",
     },
@@ -78,7 +79,8 @@ const PROJECTS = [
         title: "T-shirt et Tote bag",
         url: "silly-os.local/portfolio/projets/t-t-takeurshirtoff",
         desc: "Preparation des fichiers graphiques prêt à l'impression",
-        tags: ["Design", "Illustration","Concevoir","Exprimer"],
+        tags: ["Design", "Illustration"],
+        ue: ["Concevoir", "Exprimer"],
         image:"http://www.image-heberg.fr/files/1790599941684910863.png",
         link: "http://www.image-heberg.fr/files/1790599941684910863.png",
     },
@@ -87,7 +89,8 @@ const PROJECTS = [
         title: "Affiche CHADRU",
         url: "silly-os.local/portfolio/projets/chadru",
         desc: "Affiche pour l'exposition de CHADRU a l'Artocarpe",
-        tags: ["Affiche","Entreprendre","Comprendre","Exprimer"],
+        tags: ["Affiche"],
+        ue: ["Comprendre", "Exprimer", "Entreprendre"],
         image: "https://www.image-heberg.fr/files/179060034043479321.png",
         link: "https://www.image-heberg.fr/files/179060034043479321.png",
     },
@@ -98,13 +101,49 @@ const PROJECTS = [
     //   url: "silly-os.local/portfolio/projets/...",
     //   desc: "...",
     //   tags: ["...", "..."],
+    //   ue: ["Concevoir", "Exprimer"], // compétences du BUT MMI (voir UE_BUT_MMI)
     //   image: "chemin/vers/image.png",
     //   link: "https://...",
     // },
 ];
 
+// ---------------------------------------------------------------
+// UE du BUT MMI : chaque UE correspond à une compétence.
+// UE_SEMESTRE = semestre des projets (stage de 1re année -> S2).
+// ---------------------------------------------------------------
+const UE_SEMESTRE = 2;
+const UE_BUT_MMI = {
+    Comprendre: { num: 1, desc: "comprendre les écosystèmes, les besoins des utilisateurs et les dispositifs de communication" },
+    Concevoir: { num: 2, desc: "concevoir ou co-concevoir une réponse stratégique pertinente à une problématique complexe" },
+    Exprimer: { num: 3, desc: "exprimer un message avec les médias numériques pour informer et communiquer" },
+    Développer: { num: 4, desc: "développer pour le web et les médias numériques" },
+    Entreprendre: { num: 5, desc: "entreprendre dans le secteur du numérique" },
+};
+
+function ueLabel(name) {
+    const ue = UE_BUT_MMI[name];
+    return ue ? `UE ${UE_SEMESTRE}.${ue.num} ${name}` : name;
+}
+
+function buildUeLine(p) {
+    if (!p.ue || !p.ue.length) return "";
+    const items = p.ue
+        .map((name) => {
+            const ue = UE_BUT_MMI[name];
+            const tip = ue ? ` title="${name} : ${ue.desc}"` : "";
+            return `<li class="se-ue"${tip}>${ueLabel(name)}</li>`;
+        })
+        .join("");
+    return `
+        <div class="se-result-ue">
+          <span class="se-ue-label">Fait partie de${p.ue.length > 1 ? "s UE" : " l'UE"} :</span>
+          <ul class="se-ue-list">${items}</ul>
+        </div>`;
+}
+
 function buildProjectResult(p) {
-    const searchBlob = (p.title + " " + p.desc + " " + p.tags.join(" ")).toLowerCase();
+    const ueText = (p.ue || []).map(ueLabel).join(" ");
+    const searchBlob = (p.title + " " + p.desc + " " + p.tags.join(" ") + " " + ueText + " ue").toLowerCase();
     return `
     <div class="se-result" role="listitem" data-search="${searchBlob}">
       <div class="se-result-thumb"><img src="${p.image}" alt="" loading="lazy"></div>
@@ -112,6 +151,7 @@ function buildProjectResult(p) {
         <h2 class="se-result-heading"><a href="${p.link}" target="_blank" rel="noopener" class="se-result-title">${p.title}<span class="sr-only"> (ouvre l'image dans un nouvel onglet)</span></a></h2>
         <div class="se-result-url" aria-hidden="true">www.${p.url} <span class="se-cached">- En cache - Pages similaires</span></div>
         <p class="se-result-desc">${p.desc}</p>
+        ${buildUeLine(p)}
         <ul class="se-result-tags" aria-label="Tags">${p.tags.map((t) => `<li class="se-tag">#${t}</li>`).join("")}</ul>
       </div>
     </div>
