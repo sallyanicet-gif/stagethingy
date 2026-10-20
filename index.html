@@ -1,8 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>XP Window Manager Starter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Portfolio de Neidjah ANICET, étudiante en BUT MMI : stage, projets, CV et contact." />
+    <title>Neidjah ANICET · Portfolio</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="https://unpkg.com/xp.css" />
       <link rel="shortcut icon" href="https://image.noelshack.com/fichiers/2026/35/6/1788035099-netmeeting.png">
@@ -10,10 +12,10 @@
   </head>
   <body>
     <!-- Boot screen -->
-    <div id="boot-screen" class="screen">
+    <div id="boot-screen" class="screen" role="status" aria-label="Démarrage de Silly OS">
       <div id="boot-logo">Silly OS</div>
-      <div id="boot-sub">STARTING UP</div>
-      <div id="boot-bar-track">
+      <div id="boot-sub" lang="en">STARTING UP</div>
+      <div id="boot-bar-track" aria-hidden="true">
         <div class="boot-chunk"></div>
         <div class="boot-chunk"></div>
         <div class="boot-chunk"></div>
@@ -25,7 +27,7 @@
         <div class="boot-chunk"></div>
         <div class="boot-chunk"></div>
       </div>
-      <div id="boot-hint">Press F11 for full screen</div>
+      <div id="boot-hint">Cliquez ou appuyez sur une touche pour passer · F11 : plein écran</div>
     </div>
 
     <!-- Login screen (Windows XP style) -->
@@ -34,44 +36,45 @@
         <div class="xp-login-main">
           <div class="xp-login-left">
             <img src="icons/sillyos.png" alt="Silly OS" class="xp-brand-img" />
-            <div class="xp-instruction">To begin, click your user name</div>
+            <div class="xp-instruction" lang="en">To begin, click your user name</div>
           </div>
 
-          <div class="xp-divider"></div>
+          <div class="xp-divider" aria-hidden="true"></div>
 
           <div class="xp-login-right">
-            <div id="login-card" class="xp-user-tile">
-              <div id="login-avatar" class="xp-avatar"><img src="icons/aboutme.png" alt="Neidjah ANICET" width="48" height="48" /></div>
+            <div id="login-card" class="xp-user-tile" role="button" tabindex="0" aria-label="Neidjah ANICET : entrer dans le portfolio">
+              <div id="login-avatar" class="xp-avatar"><img src="icons/aboutme.png" alt="" width="48" height="48" /></div>
               <div id="login-name" class="xp-username">Neidjah ANICET</div>
             </div>
           </div>
         </div>
 
         <div class="xp-login-bottom">
-          <div class="xp-poweroff">
+          <div class="xp-poweroff" id="login-shutdown" role="button" tabindex="0">
             <img src="icons/Power.png" alt="" class="xp-power-icon" width="26" height="26" />
-            <span>Turn off computer</span>
+            <span lang="en">Turn off computer</span>
           </div>
-          <div class="xp-bottom-hint">Click the user tile above to enter my portfolio.</div>
+          <div class="xp-bottom-hint">Cliquez sur le nom ou appuyez sur Entrée pour entrer dans mon portfolio.</div>
         </div>
       </div>
 
-      <div id="welcome-text">Welcome</div>
+      <div id="welcome-text" lang="en" aria-live="polite">Welcome</div>
     </div>
 
     <!-- Desktop app shell (hidden until login) -->
     <div id="app-shell">
-      <div id="desktop">
-        <div class="icons" id="icons"></div>
-      </div>
+      <main id="desktop" aria-label="Bureau">
+        <h1 class="sr-only">Portfolio de Neidjah ANICET</h1>
+        <div class="icons" id="icons" role="list" aria-label="Programmes du bureau"></div>
+      </main>
 
-      <div id="taskbar">
-        <div id="start-btn"><img src="icons/startup.png" alt="" class="start-icon" /> start</div>
-        <div id="taskbar-items"></div>
-        <div id="clock">12:00 PM</div>
-      </div>
+      <nav id="taskbar" aria-label="Barre des tâches">
+        <div id="start-btn" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" aria-controls="start-menu" aria-label="Menu Démarrer"><img src="icons/startup.png" alt="" class="start-icon" /> <span lang="en">start</span></div>
+        <div id="taskbar-items" aria-label="Fenêtres ouvertes"></div>
+        <div id="clock" aria-hidden="true">12:00 PM</div>
+      </nav>
 
-      <div id="start-menu">
+      <div id="start-menu" role="region" aria-label="Menu Démarrer">
         <div class="sm-header">
           <img src="icons/aboutme.png" alt="" class="sm-avatar" />
           <span class="sm-username">Neidjah ANICET</span>
@@ -79,28 +82,28 @@
 
         <div class="sm-body">
           <div class="sm-col sm-col-left">
-            <div class="sm-item" data-open="stage">
+            <div class="sm-item" data-open="stage" role="button" tabindex="0">
               <img src="icons/aboutme.png" class="sm-item-icon" alt="" />
               <div class="sm-item-text">
                 <div class="sm-item-title">Stage</div>
-                <div class="sm-item-sub">Mon stage de 1er année</div>
+                <div class="sm-item-sub">Mon stage de 1re année</div>
               </div>
             </div>
-            <div class="sm-item" data-open="projects">
+            <div class="sm-item" data-open="projects" role="button" tabindex="0">
               <img src="icons/IE6.png" class="sm-item-icon" alt="" />
               <div class="sm-item-text">
-                <div class="sm-item-title">My Projects</div>
+                <div class="sm-item-title" lang="en">My Projects</div>
                 <div class="sm-item-sub">SillySearch!</div>
               </div>
             </div>
-            <div class="sm-item" data-open="contact">
+            <div class="sm-item" data-open="contact" role="button" tabindex="0">
               <img src="icons/Email.png" class="sm-item-icon" alt="" />
               <div class="sm-item-text">
-                <div class="sm-item-title">Contact Me</div>
+                <div class="sm-item-title" lang="en">Contact Me</div>
                 <div class="sm-item-sub">Discutons ensemble</div>
               </div>
             </div>
-            <div class="sm-item" data-open="curryvital">
+            <div class="sm-item" data-open="curryvital" role="button" tabindex="0">
               <img src="icons/Generic Text Document.png" class="sm-item-icon" alt="" />
               <div class="sm-item-text">
                 <div class="sm-item-title">Curriculum Vitae.doc</div>
@@ -108,7 +111,7 @@
               </div>
             </div>
 
-            <div class="sm-allprograms">
+            <div class="sm-allprograms" aria-hidden="true">
               <span>Tous les programmes</span>
               <span class="sm-arrow"></span>
             </div>
@@ -116,12 +119,11 @@
         </div>
 
         <div class="sm-footer">
-          <div class="sm-footer-btn" id="sm-logoff">
+          <div class="sm-footer-btn" id="sm-logoff" role="button" tabindex="0">
             <img src="icons/Standby.png" alt="" class="st-btn-icon" />
-            <span class="sm-footer-icon sm-icon-logoff"></span>
             Fermer la session
           </div>
-          <div class="sm-footer-btn" id="sm-shutdown">
+          <div class="sm-footer-btn" id="sm-shutdown" role="button" tabindex="0">
             <img src="icons/Power.png" class="sm-footer-icon" alt="" />
             Arrêter
           </div>
