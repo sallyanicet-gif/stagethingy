@@ -8,33 +8,52 @@ const loginFrame = document.querySelector(".xp-login-frame");
 const welcomeText = document.getElementById("welcome-text");
 const appShell = document.getElementById("app-shell");
 
+// Users who asked their system for less motion get shorter animations.
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const FADE = reduceMotion ? 0 : 600;
+
 // 1) Boot screen shows for a bit, then fades into the login screen.
-setTimeout(() => {
+//    Any click or key press skips it.
+let bootDone = false;
+function endBoot() {
+    if (bootDone) return;
+    bootDone = true;
+    document.removeEventListener("keydown", endBoot);
+    bootScreen.removeEventListener("click", endBoot);
     bootScreen.classList.add("fade-out");
     setTimeout(() => {
         bootScreen.style.display = "none";
         loginScreen.style.display = "flex";
-    }, 600); // matches the CSS fade duration
-}, 2600);
+        loginCard.focus();
+    }, FADE); // matches the CSS fade duration
+}
+setTimeout(endBoot, reduceMotion ? 800 : 2600);
+document.addEventListener("keydown", endBoot);
+bootScreen.addEventListener("click", endBoot);
 
-// 2) Click the user tile to "log in".
+// 2) Click the user tile (or press Enter on it) to "log in".
 loginCard.addEventListener("click", logIn);
 
+let loggingIn = false;
 function logIn() {
+    if (loggingIn) return;
+    loggingIn = true;
     loginCard.style.pointerEvents = "none";
     loginFrame.classList.add("hide");
 
     setTimeout(() => {
         welcomeText.classList.add("show");
-    }, 400);
+    }, reduceMotion ? 0 : 400);
 
     setTimeout(() => {
         loginScreen.classList.add("fade-out");
         setTimeout(() => {
             loginScreen.style.display = "none";
             appShell.classList.add("visible");
-        }, 600);
-    }, 1300);
+            const firstIcon = document.querySelector("#icons .icon");
+            if (firstIcon) firstIcon.focus();
+        }, FADE);
+    }, reduceMotion ? 300 : 1300);
 }
 
 // ---------------------------------------------------------------
@@ -82,15 +101,15 @@ const PROJECTS = [
 ];
 
 function buildProjectResult(p) {
-    const searchBlob = (p.title + " " + p.tags.join(" ")).toLowerCase();
+    const searchBlob = (p.title + " " + p.desc + " " + p.tags.join(" ")).toLowerCase();
     return `
-    <div class="se-result" data-search="${searchBlob}">
-      <div class="se-result-thumb"><img src="${p.image}" alt="${p.title}"></div>
+    <div class="se-result" role="listitem" data-search="${searchBlob}">
+      <div class="se-result-thumb"><img src="${p.image}" alt="" loading="lazy"></div>
       <div class="se-result-body">
-        <a href="${p.link}" target="_blank" class="se-result-title">${p.title}</a>
-        <div class="se-result-url">www.${p.url} <span class="se-cached">- En cache - Pages similaires</span></div>
+        <h2 class="se-result-heading"><a href="${p.link}" target="_blank" rel="noopener" class="se-result-title">${p.title}<span class="sr-only"> (ouvre l'image dans un nouvel onglet)</span></a></h2>
+        <div class="se-result-url" aria-hidden="true">www.${p.url} <span class="se-cached">- En cache - Pages similaires</span></div>
         <p class="se-result-desc">${p.desc}</p>
-        <div class="se-result-tags">${p.tags.map((t) => `<span class="se-tag">#${t}</span>`).join("")}</div>
+        <ul class="se-result-tags" aria-label="Tags">${p.tags.map((t) => `<li class="se-tag">#${t}</li>`).join("")}</ul>
       </div>
     </div>
   `;
@@ -101,18 +120,19 @@ function buildProjectsWindowContent() {
     return `
     <div class="se-shell">
       <div class="se-header">
-        <div class="se-logo">
+        <div class="se-logo" aria-hidden="true">
           <span style="color:#4285F4">S</span><span style="color:#EA4335">i</span><span style="color:#FBBC05">l</span><span style="color:#4285F4">l</span><span style="color:#34A853">y</span><span style="color:#EA4335">S</span><span style="color:#FBBC05">e</span><span style="color:#4285F4">a</span><span style="color:#34A853">r</span><span style="color:#EA4335">c</span><span style="color:#FBBC05">h</span><span style="color:#333">!</span>
         </div>
-        <div class="se-searchbar">
-          <input type="text" id="se-input" class="se-input" placeholder="Rechercher un projet, un tag..." oninput="filterProjects(this.value)" />
-          <div class="se-btn" onclick="filterProjects(document.getElementById('se-input').value)">
+        <form class="se-searchbar" role="search" onsubmit="event.preventDefault(); filterProjects(document.getElementById('se-input').value)">
+          <label for="se-input" class="sr-only">Rechercher un projet</label>
+          <input type="search" id="se-input" class="se-input" placeholder="Rechercher un projet, un tag..." oninput="filterProjects(this.value)" autocomplete="off" />
+          <div class="se-btn" role="button" tabindex="0" onclick="filterProjects(document.getElementById('se-input').value)">
             <img src="icons/Search.png" class="tb-icon" alt="" /> Rechercher
           </div>
-        </div>
-        <div class="se-stats" id="se-stats">Environ ${PROJECTS.length} résultat${PROJECTS.length > 1 ? "s" : ""} (0,04 seconde)</div>
+        </form>
+        <div class="se-stats" id="se-stats" role="status">Environ ${PROJECTS.length} résultat${PROJECTS.length > 1 ? "s" : ""} (0,04 seconde)</div>
       </div>
-      <div class="se-results" id="se-results">
+      <div class="se-results" id="se-results" role="list" aria-label="Projets">
         ${results}
       </div>
       <div class="se-noresults" id="se-noresults" style="display:none">
@@ -156,25 +176,25 @@ const APPS = {
         explorerChrome: true,
         sidebar: `
       <div class="sidebar-section">
-        <div class="sidebar-title">Rapport de stage</div>
-        <div class="sidebar-list">
-          <div>L'Artocarpe</div>
-          <div>01/06 – 30/06/2026</div>
-          <div>BUT MMI 1re année</div>
-        </div>
+        <div class="sidebar-title" role="heading" aria-level="2">Rapport de stage</div>
+        <ul class="sidebar-list">
+          <li>L'Artocarpe</li>
+          <li>01/06 – 30/06/2026</li>
+          <li>BUT MMI 1re année</li>
+        </ul>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-title">Skills Appris/travaillés</div>
-        <div class="sidebar-list">
-          <div>Adobe Photoshop</div>
-          <div>Canva</div>
-          <div>Webflow</div>
-          <div>Fichiers print</div>
-        </div>
+        <div class="sidebar-title" role="heading" aria-level="2">Skills Appris/travaillés</div>
+        <ul class="sidebar-list">
+          <li>Adobe Photoshop</li>
+          <li>Canva</li>
+          <li>Webflow</li>
+          <li>Fichiers print</li>
+        </ul>
       </div>
     `,
         content: `
-      <div style="max-height:100%; overflow-y:auto; padding-right:6px; line-height:1.45;">
+      <div class="stage-text" style="max-height:100%; overflow-y:auto; padding-right:6px; line-height:1.5;">
         <h2 style="margin-top:0;">Stage de 1er Année de ANICET Neidjah</h2>
         <p><em>Du 1er au 30 juin 2026 · Stagiaire en coordination numérique et communication</em></p>
 
@@ -184,7 +204,7 @@ const APPS = {
 
         <h3>Présentation de l'entreprise</h3>
         <p>L'Artocarpe est une association culturelle fondée en 2009 par Joëlle Ferly, artiste et commissaire d'exposition diplômée de la Central Saint Martins' School of Art de Londres. Situé au cœur du Moule, en Grande-Terre, c'est le premier espace d'art contemporain autogéré de Guadeloupe, créé par une artiste pour les artistes.</p>
-        <p>55 Rue Victor Hugo, Le Moule 97160, Guadeloupe · <a href="https://www.lartocarpe.org" target="_blank" rel="noopener">lartocarpe.org</a> · <a href="mailto:lartocarpe@gmail.com">lartocarpe@gmail.com</a></p>
+        <p>55 Rue Victor Hugo, Le Moule 97160, Guadeloupe · <a href="https://www.lartocarpe.org" target="_blank" rel="noopener">lartocarpe.org<span class="sr-only"> (nouvel onglet)</span></a> · <a href="mailto:lartocarpe@gmail.com">lartocarpe@gmail.com</a></p>
 
         <h3>Ma place à l'agence</h3>
         <p>Intégrée comme stagiaire en coordination numérique et communication, j'ai travaillé directement avec Mme Ferly au sein d'une équipe de 3 à 4 personnes, entièrement en télétravail. Mon rôle : assurer la présence en ligne de l'association, produire des contenus visuels et coordonner différents projets de communication.</p>
@@ -229,17 +249,19 @@ const APPS = {
       <form class="contact-form" onsubmit="handleContactForm(event, this)">
         <div class="contact-field">
           <label for="c-name">Nom</label>
-          <input type="text" id="c-name" name="name" required />
+          <input type="text" id="c-name" name="name" autocomplete="name" required />
         </div>
         <div class="contact-field">
           <label for="c-email">Email</label>
-          <input type="email" id="c-email" name="email" required />
+          <input type="email" id="c-email" name="email" autocomplete="email" required aria-describedby="c-email-hint" />
+          <small id="c-email-hint" class="contact-hint">Pour que je puisse vous répondre.</small>
         </div>
         <div class="contact-field">
           <label for="c-message">Message</label>
-          <textarea id="c-message" name="message" rows="4" required minlength="10"></textarea>
+          <textarea id="c-message" name="message" rows="4" required minlength="10" aria-describedby="c-message-hint"></textarea>
+          <small id="c-message-hint" class="contact-hint">10 caractères minimum.</small>
         </div>
-        <div class="contact-status" aria-live="polite"></div>
+        <div class="contact-status" role="status" aria-live="polite"></div>
         <div class="contact-actions">
           <button type="submit" class="btn">Envoyer</button>
         </div>
@@ -257,18 +279,21 @@ curryvital: {
     height: 520,
     content: `
       <div class="resume-toolbar">
-        <div class="tb-btn" onclick="toggleResumeZoom()">
+        <div class="tb-btn" id="resume-zoom" role="button" tabindex="0" aria-pressed="false" onclick="toggleResumeZoom()">
           <img src="icons/Search.png" class="tb-icon" alt=""> Zoom
         </div>
         <a class="tb-btn" href="pdf/CV_ANICET_Neidjah.png" download="CV_ANICET_Neidjah.png">
           <img src="icons/SDCard.png" class="tb-icon" alt=""> Save
         </a>
-        <div class="tb-btn" onclick="openWindow('contact')">
-          <img src="icons/Email.png" class="tb-icon" alt=""> Contact Me
+        <a class="tb-btn" href="pdf/CV_ANICET_Neidjah.pdf" target="_blank" rel="noopener">
+          <img src="icons/Open.png" class="tb-icon" alt=""> PDF<span class="sr-only"> : version texte du CV, nouvel onglet</span>
+        </a>
+        <div class="tb-btn" role="button" tabindex="0" onclick="openWindow('contact')">
+          <img src="icons/Email.png" class="tb-icon" alt=""> <span lang="en">Contact Me</span>
         </div>
       </div>
       <div class="resume-scroll">
-        <img id="resumeImg" src="pdf/CV_ANICET_Neidjah.png" alt="Mon CV" style="width:65%; display:block; margin:0 auto; transition: width 0.2s;">
+        <img id="resumeImg" src="pdf/CV_ANICET_Neidjah.png" alt="CV de Neidjah ANICET. Une version texte est disponible avec le bouton PDF." style="width:65%; display:block; margin:0 auto; transition: width 0.2s;">
       </div>
     `
 }
@@ -279,7 +304,10 @@ curryvital: {
 // ---------------------------------------------------------------
 function toggleResumeZoom() {
     const img = document.getElementById("resumeImg");
-    img.style.width = img.style.width === "70%" ? "150%" : "70%";
+    const btn = document.getElementById("resume-zoom");
+    const zoomed = btn.getAttribute("aria-pressed") === "true";
+    img.style.width = zoomed ? "65%" : "150%";
+    btn.setAttribute("aria-pressed", String(!zoomed));
 }
 function handleContactForm(e, form) {
     e.preventDefault();
@@ -326,6 +354,7 @@ const startBtn = document.getElementById("start-btn");
 const startMenu = document.getElementById("start-menu");
 const desktop = document.getElementById("desktop");
 
+const TASKBAR_H = 34;
 let zCounter = 10;
 let openWindows = {}; // id -> { el, taskEl, minimized }
 let winCounter = 0;
@@ -335,13 +364,18 @@ let offsetCascade = 0;
 Object.entries(APPS).forEach(([id, app]) => {
     const el = document.createElement("div");
     el.className = "icon";
+    el.setAttribute("role", "button");
+    el.setAttribute("tabindex", "0");
     el.innerHTML = `
     <div class="glyph"><img src="${app.glyph}" class="icon-img" alt=""></div>
     <div class="label">${app.title}</div>
   `;
-    el.addEventListener("dblclick", () => openWindow(id));
-    el.addEventListener("click", () => openWindow(id)); // single click too, easier on first try
-    desktopIcons.appendChild(el);
+    // One click is enough (no double-click needed).
+    el.addEventListener("click", () => openWindow(id));
+    const item = document.createElement("div");
+    item.setAttribute("role", "listitem");
+    item.appendChild(el);
+    desktopIcons.appendChild(item);
 });
 
 // Builds the File-Explorer-style chrome (menu bar / toolbar / address
@@ -350,17 +384,17 @@ Object.entries(APPS).forEach(([id, app]) => {
 function explorerChromeMarkup(app) {
     const sidebar = app.sidebar || "";
     return `
- <div class="explorer-menubar">
+ <div class="explorer-menubar" aria-hidden="true" lang="en">
       <span>File</span><span>Edit</span><span>View</span><span>Favorites</span><span>Tools</span><span>Help</span>
     </div>
     <div class="explorer-toolbar">
-      <div class="tb-btn"><img src="icons/Back.png" class="tb-icon" alt=""> Back</div>
-      <div class="tb-btn"><img src="icons/Forward.png" class="tb-icon" alt=""> Forward</div>
+      <div class="tb-btn tb-disabled" aria-hidden="true" lang="en"><img src="icons/Back.png" class="tb-icon" alt=""> Back</div>
+      <div class="tb-btn tb-disabled" aria-hidden="true" lang="en"><img src="icons/Forward.png" class="tb-icon" alt=""> Forward</div>
       <div class="sep"></div>
-      <div class="tb-btn" onclick="openWindow('projects')"><img src="icons/IE6.png" class="tb-icon" alt=""> My Projects</div>
-      <div class="tb-btn" onclick="openWindow('curryvital')"><img src="icons/Generic Text Document.png" class="tb-icon" alt=""> My Resume</div>
+      <div class="tb-btn" role="button" tabindex="0" lang="en" onclick="openWindow('projects')"><img src="icons/IE6.png" class="tb-icon" alt=""> My Projects</div>
+      <div class="tb-btn" role="button" tabindex="0" lang="en" onclick="openWindow('curryvital')"><img src="icons/Generic Text Document.png" class="tb-icon" alt=""> My Resume</div>
     </div>
-    <div class="explorer-addressbar">
+    <div class="explorer-addressbar" aria-hidden="true">
       <span class="addr-label">Address</span>
       <div class="addr-field"><img src="${app.glyph}" alt=""> ${app.title} <span class="addr-caret">&#9660;</span></div>
       <div class="go-btn"><img src="icons/Go.png" class="go-icon" alt=""> Go</div>
@@ -369,7 +403,7 @@ function explorerChromeMarkup(app) {
       ${sidebar ? `<div class="explorer-sidebar">${sidebar}</div>` : ""}
       <div class="explorer-main window-body${app.darkContent ? " dark-content" : ""}">${app.content}</div>
     </div>
-    <div class="status-bar">
+    <div class="status-bar" aria-hidden="true">
       <p class="status-bar-field">Ready</p>
     </div>
   `;
@@ -377,14 +411,16 @@ function explorerChromeMarkup(app) {
 // Builds the XP.css title bar: title-bar / title-bar-text /
 // title-bar-controls, with real <button aria-label="..."> controls
 // so XP.css renders the minimize/maximize/close glyphs itself.
-function titleBarMarkup(app) {
+// XP.css draws the glyphs from the English aria-labels, so they stay in
+// English; the French "title" gives a tooltip on hover.
+function titleBarMarkup(app, titleId) {
     return `
     <div class="title-bar">
-      <div class="title-bar-text"><img src="${app.glyph}" class="title-icon" alt=""> ${app.title}</div>
+      <div class="title-bar-text" id="${titleId}"><img src="${app.glyph}" class="title-icon" alt=""> ${app.title}</div>
       <div class="title-bar-controls">
-        <button aria-label="Minimize"></button>
-        <button aria-label="Maximize"></button>
-        <button aria-label="Close"></button>
+        <button aria-label="Minimize" title="Réduire" lang="en"></button>
+        <button aria-label="Maximize" title="Agrandir" lang="en"></button>
+        <button aria-label="Close" title="Fermer (Échap)" lang="en"></button>
       </div>
     </div>
   `;
@@ -400,36 +436,61 @@ function openWindow(appId) {
 
     const app = APPS[appId];
     const winId = appId + "__" + winCounter++;
+    const titleId = winId + "-title";
     const win = document.createElement("div");
     // "xp-window" handles position/drag/resize behavior (custom),
     // "window" is the XP.css class that draws the actual chrome.
     win.className = "xp-window window";
-    win.style.width = app.width + "px";
-    win.style.height = app.height + "px";
-    win.style.left = 60 + offsetCascade + "px";
-    win.style.top = 50 + offsetCascade + "px";
+    win.setAttribute("role", "dialog");
+    win.setAttribute("aria-labelledby", titleId);
+    win.setAttribute("tabindex", "-1");
+
+    // Never open a window bigger than the screen.
+    const availW = window.innerWidth;
+    const availH = window.innerHeight - TASKBAR_H;
+    const w = Math.min(app.width, availW - 20);
+    const h = Math.min(app.height, availH - 20);
+    win.style.width = w + "px";
+    win.style.height = h + "px";
+    win.style.left = Math.max(0, Math.min(60 + offsetCascade, availW - w)) + "px";
+    win.style.top = Math.max(0, Math.min(50 + offsetCascade, availH - h)) + "px";
     offsetCascade = (offsetCascade + 28) % 140;
     win.style.zIndex = ++zCounter;
 
     win.innerHTML = `
-    ${titleBarMarkup(app)}
+    ${titleBarMarkup(app, titleId)}
     ${app.explorerChrome ? explorerChromeMarkup(app) : `<div class="window-body">${app.content}</div>`}
-    <div class="resize-handle"></div>
+    <div class="resize-handle" aria-hidden="true"></div>
   `;
     desktop.appendChild(win);
 
     const taskEl = document.createElement("div");
     taskEl.className = "task-item active";
+    taskEl.setAttribute("role", "button");
+    taskEl.setAttribute("tabindex", "0");
+    taskEl.setAttribute("aria-pressed", "true");
+    taskEl.setAttribute("title", app.title);
     taskEl.innerHTML = `<img src="${app.glyph}" class="task-icon" alt=""> ${app.title}`;
     taskbarItems.appendChild(taskEl);
 
-    openWindows[winId] = { el: win, taskEl, minimized: false };
+    // Remember where focus was so it can go back there on close.
+    const opener = document.activeElement;
+    openWindows[winId] = { el: win, taskEl, minimized: false, opener };
 
     // Wire up interactions
     makeDraggable(win, win.querySelector(".title-bar"));
     makeResizable(win, win.querySelector(".resize-handle"));
+    win.querySelector(".title-bar").addEventListener("dblclick", (e) => {
+        if (!e.target.closest("button")) toggleMaximize(win);
+    });
 
-    win.addEventListener("mousedown", () => focusWindow(winId));
+    // Small screens: open full-size straight away.
+    if (window.innerWidth < 700) toggleMaximize(win);
+
+    win.addEventListener("pointerdown", () => focusWindow(winId));
+    win.addEventListener("focusin", () => {
+        if (!isActive(winId)) focusWindow(winId, false);
+    });
     taskEl.addEventListener("click", () => {
         if (openWindows[winId].minimized) {
             restoreWindow(winId);
@@ -453,6 +514,7 @@ function openWindow(appId) {
     });
 
     focusWindow(winId);
+    win.focus();
 }
 
 function isActive(winId) {
@@ -464,6 +526,7 @@ function focusWindow(winId) {
         const active = id === winId;
         w.el.classList.toggle("active", active);
         w.taskEl.classList.toggle("active", active);
+        w.taskEl.setAttribute("aria-pressed", String(active));
         // XP.css dims the title bar via the "inactive" class on .title-bar
         w.el.querySelector(".title-bar").classList.toggle("inactive", !active);
     });
@@ -477,6 +540,8 @@ function minimizeWindow(winId) {
     w.minimized = true;
     w.el.classList.remove("active");
     w.taskEl.classList.remove("active");
+    w.taskEl.setAttribute("aria-pressed", "false");
+    w.taskEl.focus();
 }
 
 function restoreWindow(winId) {
@@ -490,6 +555,20 @@ function closeWindow(winId) {
     w.el.remove();
     w.taskEl.remove();
     delete openWindows[winId];
+
+    // Hand focus to the next window still open, else back to what opened it.
+    const next = Object.keys(openWindows)
+        .filter((id) => !openWindows[id].minimized)
+        .sort((a, b) => openWindows[b].el.style.zIndex - openWindows[a].el.style.zIndex)[0];
+    if (next) {
+        focusWindow(next);
+        openWindows[next].el.focus();
+    } else if (w.opener && document.body.contains(w.opener) && w.opener.offsetParent !== null) {
+        w.opener.focus();
+    } else {
+        const firstIcon = document.querySelector("#icons .icon");
+        if (firstIcon) firstIcon.focus();
+    }
 }
 
 function toggleMaximize(win) {
@@ -505,10 +584,16 @@ function toggleMaximize(win) {
         win.dataset.prevL = win.style.left;
         win.dataset.prevT = win.style.top;
         win.style.width = "100%";
-        win.style.height = "calc(100vh - 34px)";
+        win.style.height = `calc(100% - ${TASKBAR_H}px)`;
         win.style.left = "0px";
         win.style.top = "0px";
         win.dataset.maxed = "1";
+    }
+    const maxBtn = win.querySelector('.title-bar-controls button[aria-label="Maximize"], .title-bar-controls button[aria-label="Restore"]');
+    if (maxBtn) {
+        const maxed = win.dataset.maxed === "1";
+        maxBtn.setAttribute("aria-label", maxed ? "Restore" : "Maximize");
+        maxBtn.title = maxed ? "Restaurer" : "Agrandir";
     }
 }
 
@@ -516,85 +601,140 @@ function toggleMaximize(win) {
 // Drag / resize
 // ---------------------------------------------------------------
 function makeDraggable(win, handle) {
-    let dragging = false,
-        startX,
-        startY,
-        startLeft,
-        startTop;
-    handle.addEventListener("mousedown", (e) => {
+    let dragging = false, startX, startY, startLeft, startTop;
+    handle.addEventListener("pointerdown", (e) => {
+        if (e.target.closest("button") || win.dataset.maxed === "1") return;
         dragging = true;
         startX = e.clientX;
         startY = e.clientY;
         startLeft = win.offsetLeft;
         startTop = win.offsetTop;
+        handle.setPointerCapture(e.pointerId);
         e.preventDefault();
     });
-    window.addEventListener("mousemove", (e) => {
+    handle.addEventListener("pointermove", (e) => {
         if (!dragging) return;
-        win.style.left = startLeft + (e.clientX - startX) + "px";
-        win.style.top = Math.max(0, startTop + (e.clientY - startY)) + "px";
+        // Keep at least part of the title bar on screen so the window
+        // can always be grabbed again.
+        const maxLeft = window.innerWidth - 80;
+        const minLeft = 80 - win.offsetWidth;
+        const maxTop = window.innerHeight - TASKBAR_H - 30;
+        const left = startLeft + (e.clientX - startX);
+        const top = startTop + (e.clientY - startY);
+        win.style.left = Math.min(maxLeft, Math.max(minLeft, left)) + "px";
+        win.style.top = Math.min(maxTop, Math.max(0, top)) + "px";
     });
-    window.addEventListener("mouseup", () => (dragging = false));
+    const stop = () => (dragging = false);
+    handle.addEventListener("pointerup", stop);
+    handle.addEventListener("pointercancel", stop);
 }
 
 function makeResizable(win, handle) {
-    let resizing = false,
-        startX,
-        startY,
-        startW,
-        startH;
-    handle.addEventListener("mousedown", (e) => {
+    let resizing = false, startX, startY, startW, startH;
+    handle.addEventListener("pointerdown", (e) => {
         resizing = true;
         startX = e.clientX;
         startY = e.clientY;
         startW = win.offsetWidth;
         startH = win.offsetHeight;
+        handle.setPointerCapture(e.pointerId);
         e.stopPropagation();
         e.preventDefault();
     });
-    window.addEventListener("mousemove", (e) => {
+    handle.addEventListener("pointermove", (e) => {
         if (!resizing) return;
         win.style.width = Math.max(220, startW + (e.clientX - startX)) + "px";
         win.style.height = Math.max(140, startH + (e.clientY - startY)) + "px";
     });
-    window.addEventListener("mouseup", () => (resizing = false));
+    const stop = () => (resizing = false);
+    handle.addEventListener("pointerup", stop);
+    handle.addEventListener("pointercancel", stop);
 }
 
 // ---------------------------------------------------------------
 // Start menu + clock
 // ---------------------------------------------------------------
+function setStartMenu(open) {
+    startMenu.classList.toggle("open", open);
+    startBtn.classList.toggle("open", open);
+    startBtn.setAttribute("aria-expanded", String(open));
+}
+
 startBtn.addEventListener("click", () => {
-    startMenu.classList.toggle("open");
-    startBtn.classList.toggle("open");
+    const open = !startMenu.classList.contains("open");
+    setStartMenu(open);
+    if (open) startMenu.querySelector(".sm-item").focus();
 });
 
 document.addEventListener("click", (e) => {
     if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
-        startMenu.classList.remove("open");
-        startBtn.classList.remove("open");
+        setStartMenu(false);
+    }
+});
+
+// Close the start menu when focus leaves it with Tab.
+startMenu.addEventListener("focusout", (e) => {
+    if (e.relatedTarget && !startMenu.contains(e.relatedTarget) && e.relatedTarget !== startBtn) {
+        setStartMenu(false);
     }
 });
 
 startMenu.querySelectorAll(".sm-item[data-open]").forEach((item) => {
     item.addEventListener("click", () => {
+        setStartMenu(false);
         openWindow(item.dataset.open);
-        startMenu.classList.remove("open");
-        startBtn.classList.remove("open");
     });
+});
+
+// Arrow keys move between the start menu entries.
+startMenu.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    const items = [...startMenu.querySelectorAll('[role="button"]')];
+    const i = items.indexOf(document.activeElement);
+    const next = e.key === "ArrowDown" ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+    items[next].focus();
+    e.preventDefault();
+});
+
+// ---------------------------------------------------------------
+// Keyboard: Enter / Space activate anything with role="button",
+// Escape closes the start menu, then the active window.
+// ---------------------------------------------------------------
+document.addEventListener("keydown", (e) => {
+    const el = e.target;
+    if ((e.key === "Enter" || e.key === " ") && el.getAttribute && el.getAttribute("role") === "button" && el.tagName !== "BUTTON") {
+        e.preventDefault();
+        el.click();
+        return;
+    }
+    if (e.key === "Escape") {
+        if (startMenu.classList.contains("open")) {
+            setStartMenu(false);
+            startBtn.focus();
+            return;
+        }
+        // Don't close a window while someone is typing in a form field.
+        if (el.matches && el.matches("input, textarea, select")) return;
+        const activeId = Object.keys(openWindows).find((id) => isActive(id));
+        if (activeId && openWindows[activeId].el.contains(document.activeElement)) {
+            closeWindow(activeId);
+        }
+    }
 });
 
 // "Fermer la session" sends you back to the login screen, XP-style.
 const smLogoff = document.getElementById("sm-logoff");
 if (smLogoff) {
     smLogoff.addEventListener("click", () => {
-        startMenu.classList.remove("open");
-        startBtn.classList.remove("open");
+        setStartMenu(false);
+        loggingIn = false;
         appShell.classList.remove("visible");
         loginScreen.style.display = "flex";
         loginScreen.classList.remove("fade-out");
         loginFrame.classList.remove("hide");
         welcomeText.classList.remove("show");
         loginCard.style.pointerEvents = "auto";
+        loginCard.focus();
     });
 }
 
@@ -602,8 +742,7 @@ if (smLogoff) {
 // it opened itself, so if closing is blocked we show an XP-style
 // "shut down" screen instead.
 function shutdownSite() {
-    startMenu.classList.remove("open");
-    startBtn.classList.remove("open");
+    setStartMenu(false);
 
     window.close();
 
@@ -616,11 +755,15 @@ function shutdownSite() {
             "flex-direction:column;align-items:center;justify-content:center;" +
             "gap:12px;font-family:Tahoma,Verdana,sans-serif;text-align:center;" +
             "padding:16px;opacity:0;transition:opacity .6s;";
+        screen.setAttribute("role", "status");
+        screen.setAttribute("tabindex", "-1");
         screen.innerHTML =
-            '<div style="font-size:18px;color:#f90">Vous pouvez maintenant fermer cet onglet en toute sécurité.</div>' +
-            '<div style="font-size:13px">Rechargez la page pour redémarrer.</div>';
+            '<h1 style="font-size:18px;font-weight:normal;color:#ffa31a;margin:0">Vous pouvez maintenant fermer cet onglet en toute sécurité.</h1>' +
+            '<p style="font-size:14px;margin:0">Rechargez la page pour redémarrer.</p>';
+        document.title = "Silly OS : arrêté";
         document.body.style.background = "#000";
         document.body.appendChild(screen);
+        screen.focus();
         requestAnimationFrame(() => (screen.style.opacity = "1"));
     }, 300);
 }
@@ -628,6 +771,10 @@ function shutdownSite() {
 const smShutdown = document.getElementById("sm-shutdown");
 if (smShutdown) {
     smShutdown.addEventListener("click", shutdownSite);
+}
+const loginShutdown = document.getElementById("login-shutdown");
+if (loginShutdown) {
+    loginShutdown.addEventListener("click", shutdownSite);
 }
 
 function updateClock() {
