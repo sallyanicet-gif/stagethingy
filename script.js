@@ -15,8 +15,11 @@ const FADE = reduceMotion ? 0 : 600;
 // 1) Boot screen shows for a bit, then fades into the login screen.
 //    Any click or key press skips it.
 let bootDone = false;
-function endBoot() {
+function endBoot(e) {
     if (bootDone) return;
+    // Only pre-select the user tile for keyboard users, so mouse users
+    // don't see a focus outline they didn't ask for.
+    const viaKeyboard = !!(e && e.type === "keydown");
     bootDone = true;
     document.removeEventListener("keydown", endBoot);
     bootScreen.removeEventListener("click", endBoot);
@@ -24,7 +27,7 @@ function endBoot() {
     setTimeout(() => {
         bootScreen.style.display = "none";
         loginScreen.style.display = "flex";
-        loginCard.focus();
+        if (viaKeyboard) loginCard.focus();
     }, FADE); // matches the CSS fade duration
 }
 setTimeout(endBoot, reduceMotion ? 800 : 2600);
